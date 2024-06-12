@@ -1,3 +1,7 @@
+# Next Match
+
+An tutorial project of an dating app using NextJS based on this [Udemy Course](https://www.udemy.com/course/the-complete-guide-to-building-a-full-stack-app-with-nextjs/?couponCode=ST21MT61124)
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
