@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Providers from "../componentes/providers";
-import TopNav from "@/componentes/TopNav";
+import Providers from "../components/providers";
+import TopNav from "@/components/TopNav";
 
 
 export const metadata: Metadata = {
@@ -20,7 +20,9 @@ export default function RootLayout({
       <body>
         <Providers>
           <TopNav/>
-          {children}
+          <main className="container mx-auto">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>
