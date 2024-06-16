@@ -6,7 +6,7 @@ import { User } from "@prisma/client";
 import { ActionResults } from "@/types";
 import { LoginSchema } from "@/app/schemas/loginSchema";
 import { AuthError } from "next-auth";
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 
 export async function signInUser(data:LoginSchema) : Promise<ActionResults<string>> {
   try {
@@ -20,18 +20,23 @@ export async function signInUser(data:LoginSchema) : Promise<ActionResults<strin
   } catch (error) {
     console.error(error);
     if(error instanceof AuthError) {
-      switch(error.type) {
-        case 'CredentialsSignin': 
-          return {status: 'error', error: 'Invalid Credentials'}          
-        default:
-          return {status: 'error', error: error.message}
-      }
+      return {status: 'error', error:"Invalid Credentials"}
+      // switch(error.type) { 
+        
+      //   case 'CredentialsSignin': 
+      //     return {status: 'error', error: 'Invalid Credentials'}          
+      //   default:          
+      //     return {status: 'error', error: error.message}
+      // }
     } else {
       return {status: 'error', error: 'something else went wrong'}
     }
   }
 }
 
+export async function signOutUser() {
+  await signOut({redirectTo: '/'});
+}
 
 /**
  * Server action to register a new user to our site
