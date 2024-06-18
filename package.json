@@ -12,6 +12,7 @@
     "@hookform/resolvers": "^3.6.0",
     "@nextui-org/react": "^2.4.1",
     "bcryptjs": "^2.4.3",
+    "date-fns": "^3.6.0",
     "framer-motion": "^11.2.10",
     "next": "14.2.4",
     "next-auth": "^5.0.0-beta.19",
@@ -36,6 +37,10 @@
     "postcss": "^8",
     "prisma": "^5.15.0",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   }
 }

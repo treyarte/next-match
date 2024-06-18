@@ -11,6 +11,7 @@ const config: Config = {
   theme: {
     extend: {
       backgroundImage: {
+        "dark-gradient": "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
