@@ -11,6 +11,7 @@ export async function getMembers() {
   }
   
   try {
+    
     return prisma.member.findMany({
       where: {
         NOT:{
@@ -20,7 +21,7 @@ export async function getMembers() {
     });
     
   } catch (error) {
-    console.error(error);
+    console.error(error);    
   }
 }
 
@@ -31,5 +32,23 @@ export async function getMemberByUserId(userId:string) {
     })
   } catch (error) {
     console.error(error);
+  }
+}
+
+export async function getMemberPhotosByUserId(userId:string){
+  try {
+    const member = await prisma.member.findUnique({
+      where: {userId},
+      select: {photos:true}
+    });
+
+    if(!member) {
+      return null;
+    }
+
+    return member.photos.map(p => p);
+
+  } catch (error) {
+    console.error(error)
   }
 }
