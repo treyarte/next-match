@@ -6,7 +6,7 @@ import { User } from "@prisma/client";
 import { ActionResults } from "@/types";
 import { LoginSchema } from "@/app/schemas/loginSchema";
 import { AuthError } from "next-auth";
-import { signIn, signOut } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
 
 export async function signInUser(data:LoginSchema) : Promise<ActionResults<string>> {
   try {
@@ -66,5 +66,25 @@ export async function registerUser(data:RegisterSchema) : Promise<ActionResults<
   } catch (error) {
     console.log(error);
     return {status: 'error', error: "Something went wrong"};
+  }
+}
+
+/**
+ * Gets the current logged in user id
+ */
+export async function getAuthUserId() : Promise<string> {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if(!userId) {
+      throw new Error('Unauthorized')
+    }
+    
+    return userId;
+
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
