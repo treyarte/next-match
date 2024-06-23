@@ -56,7 +56,7 @@ export default function MemberSidebar({member, navLinks}:props) {
           color='secondary'
           variant='bordered'
         >
-
+          Go Back
         </Button>
       </CardFooter>
     </Card>
