@@ -8,7 +8,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   ...authConfig,
   callbacks: {
-    async session({token, session}) {
+    async jwt({token, user, trigger, session}) {
+      if(trigger === "update") { //important to update the nav bar
+        return {...token, ...session.user}
+      }
+      return {...token, ...user}
+    },
+
+    async session({token, session, trigger, user}) {
       if(token.sub && session.user) {
         session.user.id = token.sub
       }

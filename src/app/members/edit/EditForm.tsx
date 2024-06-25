@@ -6,6 +6,7 @@ import { handleFormServerErrors } from '@/libs/util';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Textarea } from '@nextui-org/react';
 import { Member } from '@prisma/client';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -22,6 +23,7 @@ export default function EditForm({member}:props) {
   });
 
   const router = useRouter();
+  const {data:session, update} = useSession();
 
   useEffect(() => {
 
@@ -41,6 +43,13 @@ export default function EditForm({member}:props) {
 
     if(res.status === 'success') {
       toast.success('Profile updated');
+      await update({
+        ...session, 
+        user: {
+          ...session?.user,
+          name:res.data.name
+        }  
+      })
       router.refresh();
       reset({...data});
     } else {

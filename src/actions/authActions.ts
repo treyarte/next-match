@@ -21,13 +21,7 @@ export async function signInUser(data:LoginSchema) : Promise<ActionResults<strin
     console.error(error);
     if(error instanceof AuthError) {
       return {status: 'error', error:"Invalid Credentials"}
-      // switch(error.type) { 
-        
-      //   case 'CredentialsSignin': 
-      //     return {status: 'error', error: 'Invalid Credentials'}          
-      //   default:          
-      //     return {status: 'error', error: error.message}
-      // }
+
     } else {
       return {status: 'error', error: 'something else went wrong'}
     }
