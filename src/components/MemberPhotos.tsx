@@ -1,6 +1,6 @@
 'use client';
 
-import { setMainPhoto } from '@/actions/userActions';
+import { deletePhoto, setMainPhoto } from '@/actions/userActions';
 import { Photo } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -40,8 +40,15 @@ export default function MemberPhotos({photos, editing, mainImageUrl}:Props) {
     });
     
     router.refresh();
-    setLoading(defaultLoading)
-    
+    setLoading(defaultLoading)    
+  }
+
+  const onDelete = async (photo:Photo) => {
+    if(photo.url === mainImageUrl) {return;}
+    setLoading({isLoading:true, id:photo.id, type: 'delete'});
+    await deletePhoto(photo);
+    router.refresh();
+    setLoading(defaultLoading)    
   }
 
   return (
@@ -51,7 +58,10 @@ export default function MemberPhotos({photos, editing, mainImageUrl}:Props) {
           <MemberImage photo={photo}/>
           {editing && (
             <>
-              <div onClick={() => onSetMain(photo)} className="absolute top-3 left-3 z-50">
+              <div 
+                onClick={() => onSetMain(photo)} 
+                className="absolute top-3 left-3 z-50"
+              >
                 <StarButton 
                   selected={photo.url === mainImageUrl} 
                   loading={
@@ -61,8 +71,17 @@ export default function MemberPhotos({photos, editing, mainImageUrl}:Props) {
                   }
                 />
               </div>
-              <div className="absolute top-3 right-3 z-50">
-                <DeleteButton loading={false}/>
+              <div
+                onClick={() => onDelete(photo)} 
+                className="absolute top-3 right-3 z-50"
+              >
+                <DeleteButton 
+                  loading={
+                    loading.isLoading
+                    && loading.type === 'delete'
+                    && loading.id === photo.id
+                  }
+                />
               </div>
             </>
           )}

@@ -1,7 +1,7 @@
 'use client';
 
 import LikeButton from "@/components/LikeButton"
-import { calculateAge } from "@/libs/util"
+import { calculateAge, transformImageUrl } from "@/libs/util"
 import { Card, CardFooter, Image } from "@nextui-org/react"
 import { Member } from "@prisma/client"
 import Link from "next/link"
@@ -30,7 +30,7 @@ const hasLike = likeIds.includes(member.userId);
         isZoomed
         alt={member.name}
         width={300} 
-        src={member.image || '/images/user.png'}
+        src={transformImageUrl(member.image) || '/images/user.png'}
         className='aspect-square object-cover'
       />
       <div onClick={preventLinkAction}>

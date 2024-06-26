@@ -2,6 +2,7 @@
 
 import { signOutUser } from '@/actions/authActions';
 import { auth, signOut } from '@/auth'
+import { transformImageUrl } from '@/libs/util';
 import { Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@nextui-org/react'
 import { Session } from 'next-auth'
 import { useSession } from 'next-auth/react';
@@ -24,7 +25,7 @@ export default function UserMenu({user}: props) {
           className='transition-transform'
           name={user?.name || "user avatar"}
           size='sm'
-          src={session?.user?.image || '/images/user.png'}
+          src={transformImageUrl(session?.user?.image) || '/images/user.png'}
         />
       </DropdownTrigger>
       <DropdownMenu variant='flat' artia-label='User actions menu'>
