@@ -1,21 +1,31 @@
 'use client';
 
+import { signInUser } from '@/actions/authActions';
 import { LoginSchema, loginSchema } from '@/app/schemas/loginSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Card, CardBody, CardHeader, Input } from '@nextui-org/react'
+import { useRouter } from 'next/navigation';
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { GiPadlock } from 'react-icons/gi'
+import { toast } from 'react-toastify';
 
 export default function LoginForm() {
-  const {register, handleSubmit, formState: {errors, isValid}} = useForm<LoginSchema>({
+  const router = useRouter();
+  const {register, handleSubmit, formState: {errors, isValid, isSubmitting}} = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     mode: 'onTouched'
 
   });
 
-  const onSubmit = (data:LoginSchema) => {
-    console.info(data)
+  const onSubmit = async (data:LoginSchema) => {
+    const res = await signInUser(data);
+    if(res.status === 'success') {
+      router.push('/members');
+      router.refresh();
+    } else {
+      toast.error(res.error as string);
+    }
   }
 
   return (
@@ -47,7 +57,13 @@ export default function LoginForm() {
               isInvalid={!!errors.password}
               errorMessage={errors.password?.message as string}
             />
-            <Button isDisabled={!isValid} fullWidth color='secondary' type='submit'>
+            <Button 
+              isLoading={isSubmitting}
+              isDisabled={!isValid} 
+              fullWidth 
+              color='secondary' 
+              type='submit'
+            >
               Login
             </Button>
           </div>

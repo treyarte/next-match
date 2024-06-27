@@ -11,18 +11,25 @@
   "dependencies": {
     "@hookform/resolvers": "^3.6.0",
     "@nextui-org/react": "^2.4.1",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.2.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
     "framer-motion": "^11.2.10",
     "next": "14.2.4",
     "next-auth": "^5.0.0-beta.19",
+    "next-cloudinary": "^6.6.2",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.51.5",
     "react-icons": "^5.2.1",
+    "react-toastify": "^10.0.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@auth/prisma-adapter": "^2.2.0",
     "@prisma/client": "^5.15.0",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -33,6 +40,10 @@
     "postcss": "^8",
     "prisma": "^5.15.0",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   }
 }
