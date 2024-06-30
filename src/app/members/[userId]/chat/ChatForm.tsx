@@ -5,7 +5,7 @@ import { handleFormServerErrors } from '@/libs/util';
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Input } from '@nextui-org/react'
 import { useParams, useRouter } from 'next/navigation';
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { HiPaperAirplane } from 'react-icons/hi2'
 
@@ -13,11 +13,14 @@ export default function ChatForm() {
   const router = useRouter();
   const params = useParams<{userId:string}>()
 
-  const {register, handleSubmit, reset, setError, formState: {isValid, isDirty, isSubmitting, errors}} = useForm<MessageSchema>({
+  const {register, handleSubmit, reset, setError, setFocus, formState: {isValid, isDirty, isSubmitting, errors}} = useForm<MessageSchema>({
     resolver: zodResolver(messageSchema)
-  })
+  });
 
 
+  useEffect(() => {
+    setFocus('text');
+  },[setFocus]);
 
   const onSubmit = async (data:MessageSchema) => {
     const res = await createMessage(params.userId, data);
@@ -27,6 +30,7 @@ export default function ChatForm() {
     } else {
       reset();
       router.refresh();
+      setTimeout(() => setFocus('text'), 50);
     }
   }
 
