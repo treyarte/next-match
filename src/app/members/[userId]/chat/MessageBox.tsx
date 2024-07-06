@@ -1,6 +1,6 @@
 'use client';
 
-import { transformImageUrl } from '@/libs/util';
+import { getTimeAgo, transformImageUrl } from '@/libs/util';
 import { MessageDto } from '@/types'
 import { Avatar } from '@nextui-org/react';
 import { clsx } from 'clsx';
@@ -48,7 +48,7 @@ export default function MessageBox({message, currentUserId}:Props) {
 
     })}>
       {message.dateRead && message.recipientId !== currentUserId ? (
-        <span className="text-xs text-black text-italic">(Read 4 mins ago)</span>
+        <span className="text-xs text-black text-italic">(read {getTimeAgo(message.dateRead)})</span>
       ): (<div></div>)}
       <div className="flex">
         <span className="text-sm font-semibold text-gray-900">{message.senderName}</span>

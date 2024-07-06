@@ -1,9 +1,11 @@
 'use client';
 
 import { MessageDto } from '@/types';
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import MessageBox from './MessageBox';
 import { pusherClient } from '@/libs/pusher';
+import { formatShortDateTime } from '@/libs/util';
+import { Channel } from 'pusher-js';
 
 type Props = {
     initialMessages:MessageDto[];
@@ -13,22 +15,34 @@ type Props = {
 
 export default function MessageList({initialMessages, userId, chatId}:Props) {
     const [messages, setMessages] = useState(initialMessages);
-
+    const channelRef = useRef<Channel | null>(null);
     const handleMessages = useCallback((message:MessageDto) => {
         setMessages(prevState => {
             return [...prevState, message]
         })
     }, [])
 
+    const handleReadMessages = useCallback((messageIds:string[]) => {
+        setMessages(prevState => prevState.map(message => messageIds.includes(message.id)
+            ? {...message, dateRead: formatShortDateTime(new Date())} : message
+        ))
+    }, []);
+
     useEffect(() => {
-        const channel = pusherClient.subscribe(chatId);
-        channel.bind("message:new", handleMessages);
+        if(channelRef.current) {
+            channelRef.current = pusherClient.subscribe(chatId);
+            channelRef.current.bind("message:new", handleMessages);
+            channelRef.current.bind("messages:read", handleReadMessages);
+        }
 
         return () => {
-            channel.unsubscribe();
-            channel.unbind("message:new", handleMessages);
+            if(channelRef.current && channelRef.current.subscribed) {
+                channelRef.current.unsubscribe();
+                channelRef.current.unbind("message:new", handleMessages);
+                channelRef.current.unbind("messages:read", handleReadMessages);
+            }
         }
-    }, [chatId, handleMessages]);
+    }, [chatId, handleMessages, handleReadMessages]);
 
     return (
         <div>
