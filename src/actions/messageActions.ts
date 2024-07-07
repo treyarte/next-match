@@ -31,7 +31,8 @@ export async function createMessage(recipientId:string, data:MessageSchema) : Pr
 
     const messageDto = mapMessageToMessageDto(message);
 
-    pusherServer.trigger(createChatId(userId, recipientId), 'message:new', messageDto)
+    await pusherServer.trigger(createChatId(userId, recipientId), 'message:new', messageDto);
+    await pusherServer.trigger(`private-${recipientId}`, 'message:new', messageDto);
 
     return {status: 'success', data:messageDto};
 

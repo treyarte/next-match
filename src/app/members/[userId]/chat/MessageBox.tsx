@@ -1,5 +1,6 @@
 'use client';
 
+import PresenceAvatar from '@/components/PresenceAvatar';
 import { getTimeAgo, transformImageUrl } from '@/libs/util';
 import { MessageDto } from '@/types'
 import { Avatar } from '@nextui-org/react';
@@ -20,11 +21,12 @@ export default function MessageBox({message, currentUserId}:Props) {
   },[messageEndRef])
 
   const renderAvatar = () => (
-    <Avatar 
-      name={message.senderName}
-      className='self-end'
-      src={transformImageUrl(message.senderImage) || '/images/user.png'}
-    />
+    <div className="self-end">
+      <PresenceAvatar
+        userId={message.senderId}
+        src={transformImageUrl(message.senderImage) || '/images/user.png'}
+      />
+      </div>
   )
 
   const messageContentClasses = clsx(
