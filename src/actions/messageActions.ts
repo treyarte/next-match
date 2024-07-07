@@ -67,6 +67,8 @@ export async function getMessageThread(recipientId:string) {
       select:messageSelect
     });
 
+    let readCount = 0;
+
     if(messages.length > 0) {
       const readMessagesIds = messages
             .filter( m => m.dateRead === null 
@@ -81,10 +83,14 @@ export async function getMessageThread(recipientId:string) {
         data: {dateRead: new Date()}
       })
       
+      readCount = readMessagesIds.length;
+
       await pusherServer.trigger(createChatId(recipientId, userId), 'messages:read', readMessagesIds)
     }
 
-    return messages.map(message => mapMessageToMessageDto(message))
+    const messagesToReturn  = messages.map(message => mapMessageToMessageDto(message));
+
+    return {messages:messagesToReturn, readCount};
 
   } catch (error) {
     console.error(error);
@@ -111,6 +117,23 @@ export async function getMessagesByContainer(container:string) {
 
     return messages.map(message => mapMessageToMessageDto(message));
 
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function getUnreadMessageCount() {
+  try {
+    const userId = await getAuthUserId();
+
+    return prisma.message.count({
+      where: {
+        recipientId: userId,
+        dateRead: null,
+        recipientDeleted: false
+      }
+    })
   } catch (error) {
     console.error(error);
     throw error;
