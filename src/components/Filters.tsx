@@ -1,24 +1,18 @@
 'use client';
-import { Button, Select, SelectItem, Slider } from '@nextui-org/react';
-import { usePathname } from 'next/navigation'
+import { useFilters } from '@/hooks/useFilters';
+import { Button, Select, Selection, SelectItem, Slider } from '@nextui-org/react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React from 'react'
 import { IconBase } from 'react-icons';
 import { FaFemale, FaMale } from 'react-icons/fa'
 
 export default function Filters() {
     const pathname = usePathname();
-    
-    const orderByList = [
-        {label:'Last Active', value: 'updated'},
-        {label:'Newest Members', value: 'created'},
-    ]
 
-    const genders = [
-        {value: 'male', icon: FaMale},
-        {value: 'female', icon: FaFemale},
-    ]
+    const {orderByList, genderList, filters, selectAge, selectOrder, selectedGender} = useFilters();
 
     if(pathname !== '/members') return null
+    
   return (
     <div className="shadow-md py-2">
         <div className="flex flex-row justify-around items-center">
@@ -27,8 +21,14 @@ export default function Filters() {
             </div>
             <div className='flex gap-2 items-center'>
                 <div>Gender:</div>
-                {genders.map(({icon:Icon, value}) => (
-                    <Button key={value} size='sm' isIconOnly color='secondary'>
+                {genderList.map(({icon:Icon, value}) => (
+                    <Button 
+                        key={value} 
+                        size='sm' 
+                        isIconOnly 
+                        color={filters.gender.includes(value)?'secondary' : 'default'}
+                        onClick={() => selectedGender(value)}
+                    >
                         <Icon size ={24} />
                     </Button>
                 ))}
@@ -40,17 +40,20 @@ export default function Filters() {
                size='sm'
                minValue={18}
                maxValue={100}
-               defaultValue={[18, 100]} 
+               defaultValue={filters.ageRange} 
+               onChangeEnd={(value) => selectAge(value as number[])}
             />
             </div>
             <div className="w-1/4">
                 <Select 
                     size='sm'
                     fullWidth
-                    placeholder='Order by'
+                    label='Order by'
                     variant='bordered'
                     color='secondary'
                     aria-label='Order By'
+                    selectedKeys={new Set([filters.orderBy])}
+                    onSelectionChange={selectOrder}
                 >
                     {orderByList.map(item => (
                         <SelectItem key={item.value} value={item.value}>
