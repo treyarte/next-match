@@ -37,3 +37,18 @@ type UserFilters = {
   orderBy:string;
   gender:string[];
 }
+  
+type PagingParams = {
+  pageNumber:number;
+  pageSize:number;
+} 
+
+type PagingResults = {
+  totalPages:number;
+  totalCount:number;
+} & PagingParams;
+
+type PaginatedResponse<T> = {
+  items:T[];
+  totalCount:number
+}

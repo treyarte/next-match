@@ -1,25 +1,35 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FaMale, FaFemale } from "react-icons/fa";
 import useFiltersStore from "./useFilterStore";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import { Selection } from "@nextui-org/react";
+import usePaginationStore from "./usePageinationStore";
 
 export const useFilters = () => {
     const pathname = usePathname();
+    const {pageNumber, pageSize} = usePaginationStore(state => ({
+        pageNumber: state.pagination.pageNumber,
+        pageSize: state.pagination.pageNumber
+    }));
     const searchParams = useSearchParams();
     const router = useRouter();
     
     const {filters, setFilters} = useFiltersStore();
+    const [isPending, startTransition] = useTransition();
 
     const {gender, ageRange, orderBy} = filters;
 
     useEffect(() => {
-        const searchParams = new URLSearchParams();
-        if(gender) searchParams.set('gender', gender.join(','));
-        if(ageRange) searchParams.set('ageRange', ageRange.toString());
-        if(orderBy) searchParams.set('orderBy', orderBy);
+        startTransition(() => {
+            const searchParams = new URLSearchParams();
+            if(gender) searchParams.set('gender', gender.join(','));
+            if(ageRange) searchParams.set('ageRange', ageRange.toString());
+            if(orderBy) searchParams.set('orderBy', orderBy);
+            if(pageSize) searchParams.set('pageSize' , pageSize.toString());
+            if(pageNumber) searchParams.set('pageNumber' , pageNumber.toString());
 
-        router.replace(`${pathname}?${searchParams}`);
+            router.replace(`${pathname}?${searchParams}`);
+        })
     }, [ageRange, gender, orderBy, pathname, router]);
 
     const orderByList = [
@@ -54,6 +64,8 @@ export const useFilters = () => {
         selectAge:handleAgeSelect,
         selectedGender:handleGenderSelect,
         selectOrder:handleOrderSelect,
-        filters
+        filters,
+        isPending
+
     }
 }

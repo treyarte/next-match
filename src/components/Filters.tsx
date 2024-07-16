@@ -1,23 +1,17 @@
 'use client';
 import { useFilters } from '@/hooks/useFilters';
-import { Button, Select, Selection, SelectItem, Slider } from '@nextui-org/react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import React from 'react'
-import { IconBase } from 'react-icons';
-import { FaFemale, FaMale } from 'react-icons/fa'
+import { Button, Select, SelectItem, Slider, Spinner } from '@nextui-org/react';
 
-export default function Filters() {
-    const pathname = usePathname();
-
-    const {orderByList, genderList, filters, selectAge, selectOrder, selectedGender} = useFilters();
-
-    if(pathname !== '/members') return null
-    
+export default function Filters() {    
+    const {orderByList, genderList, filters, selectAge, selectOrder, selectedGender, isPending} = useFilters();
   return (
     <div className="shadow-md py-2">
         <div className="flex flex-row justify-around items-center">
-            <div className="text-secondary font-semibold text-xl">
-                Results: 10
+            <div className='flex gap-2 items-center'>
+                <div className="text-secondary font-semibold text-xl">
+                    Results: 10
+                </div>
+                {isPending && <Spinner size='sm' color='secondary'/>}
             </div>
             <div className='flex gap-2 items-center'>
                 <div>Gender:</div>
