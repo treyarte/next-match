@@ -7,17 +7,25 @@ import usePaginationStore from "./usePageinationStore";
 
 export const useFilters = () => {
     const pathname = usePathname();
-    const {pageNumber, pageSize} = usePaginationStore(state => ({
-        pageNumber: state.pagination.pageNumber,
-        pageSize: state.pagination.pageNumber
-    }));
-    const searchParams = useSearchParams();
+    
     const router = useRouter();
+    const [isPending, startTransition] = useTransition();
     
     const {filters, setFilters} = useFiltersStore();
-    const [isPending, startTransition] = useTransition();
+    const {pageNumber, pageSize, setPage, totalCount} = usePaginationStore(state => ({
+        pageNumber:state.pagination.pageNumber,
+        pageSize:state.pagination.pageSize,
+        setPage:state.setPage,
+        totalCount:state.pagination.totalCount,
+    }))
 
     const {gender, ageRange, orderBy} = filters;
+
+    useEffect(() => {
+        if(gender || ageRange || orderBy) {
+            setPage(1);
+        }
+    }, [ageRange, gender, orderBy, setPage])
 
     useEffect(() => {
         startTransition(() => {
@@ -30,7 +38,7 @@ export const useFilters = () => {
 
             router.replace(`${pathname}?${searchParams}`);
         })
-    }, [ageRange, gender, orderBy, pathname, router]);
+    }, [ageRange, gender, orderBy, pageNumber, pageSize, pathname, router]);
 
     const orderByList = [
         {label:'Last Active', value: 'updated'},

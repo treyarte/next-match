@@ -2,29 +2,34 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/libs/prisma";
-import { UserFilters } from "@/types";
+import { GetMemberParams, PaginatedResponse, UserFilters } from "@/types";
 import { addYears, min } from "date-fns";
 import { getAuthUserId } from "./authActions";
+import { Member } from "@prisma/client";
 
-export async function getMembers(searchParams:UserFilters) {
-  const session = await auth();
+export async function getMembers({
+  ageRange = '18,100',
+  gender = 'male,female',
+  orderBy = 'updated',
+  pageNumber = '1',
+  pageSize = '12',
+}:GetMemberParams) : Promise<PaginatedResponse<Member>> {
+  const userId = await getAuthUserId();
   
-  if(!session?.user) {
-    return null;
-  }
-  
-  const ageRange = searchParams?.ageRange?.toString()?.split(',') || [18,100];
+  const [minAge, maxAge] = ageRange.split(',');  
   const currentDate = new Date();
-  const minDob = addYears(currentDate, -ageRange[1]-1);
-  const maxDob = addYears(currentDate, -ageRange[0]);
+  const minDob = addYears(currentDate, -maxAge-1);
+  const maxDob = addYears(currentDate, -minAge);
 
-  const orderBySelector = searchParams?.orderBy || 'updated';
+  const selectedGender = gender.split(',');
 
-  const selectedGender = searchParams?.gender?.toString()?.split(',') || ['male', 'female'];
+  const page = parseInt(pageNumber);
+  const limit = parseInt(pageSize);
+
+  const skip = (page - 1) * limit;
 
   try {
-    
-    return prisma.member.findMany({
+    const count = await prisma.member.count({
       where: {
         AND: [
           {dateOfBirth: {gte:minDob}},
@@ -32,14 +37,34 @@ export async function getMembers(searchParams:UserFilters) {
           {gender: {in: selectedGender}}
         ],
         NOT:{
-          userId: session.user.id
+          userId
+        }
+      }
+    })
+    const members = await prisma.member.findMany({
+      where: {
+        AND: [
+          {dateOfBirth: {gte:minDob}},
+          {dateOfBirth: {lte:maxDob}},
+          {gender: {in: selectedGender}}
+        ],
+        NOT:{
+          userId
         }
       },
-      orderBy: {[orderBySelector]: 'desc'}
+      orderBy: {[orderBy]: 'desc'},
+      skip,
+      take: limit
     });
+
+    return {
+      items:members,
+      totalCount: count
+    }
     
   } catch (error) {
     console.error(error);    
+    throw error;
   }
 }
 

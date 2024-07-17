@@ -1,11 +1,14 @@
 'use client';
 import usePaginationStore from '@/hooks/usePageinationStore';
-import { Pagination } from '@nextui-org/react'
+import { Pagination } from '@nextui-org/react';
 import clsx from 'clsx';
-import React, { useEffect, useState } from 'react'
+import { useEffect } from 'react';
 
-export default function PaginationComponent() {
-    const totalCount = 1;
+type Props = {
+    totalCount:number
+}
+
+export default function PaginationComponent({totalCount}:Props) {    
     const {setPage, setPageSize, setPagination, pagination} = usePaginationStore(state => ({
         setPage: state.setPage,
         setPageSize: state.setPageSize,
@@ -16,17 +19,17 @@ export default function PaginationComponent() {
     const {pageNumber, pageSize, totalPages} = pagination;
 
     const start = (pageNumber - 1) * pageSize + 1;
-    const end = Math.min(pageNumber * pageSize);
+    const end = Math.min(pageNumber * pageSize, totalCount);
     const resultText = `Showing ${start}-${end} of ${totalCount} results`
 
     useEffect(() => {
-        setPagination
-    }, [setPagination]);
+        setPagination(totalCount)
+    }, [setPagination, totalCount]);
 
   return (
     <div className="border-t-2 w-full mt-5">
         <div className="flex flex-row justify-between items-center py-5">
-            <div>Showing 1-10 of 23 results</div>
+            <div>{resultText}</div>
             <Pagination 
                 total={totalPages}
                 color='secondary'

@@ -28,7 +28,7 @@ const usePaginationStore = create<PaginationState>()((devtools((set) => ({
     setPageSize: (pageSize:number) => set(state => ({pagination: {
         ...state.pagination,
         pageSize:pageSize,
-        pageNumber: 1,
+        pageNumber:1,        
         totalPages:Math.ceil(state.pagination.totalCount/pageSize)
     }}))
 }), {name: 'paginationStoreDemo'})))
