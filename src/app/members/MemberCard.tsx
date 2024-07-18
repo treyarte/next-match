@@ -13,7 +13,7 @@ type props = {
 }
 
 export default function MemberCard({member, likeIds}:props) {
-const hasLike = likeIds.includes(member.userId);
+  const hasLike = likeIds.includes(member.userId);
 
   const preventLinkAction = (e:React.MouseEvent) => {
     e.preventDefault();

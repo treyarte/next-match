@@ -1,8 +1,8 @@
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { FaMale, FaFemale } from "react-icons/fa";
-import useFiltersStore from "./useFilterStore";
-import { useEffect, useTransition } from "react";
 import { Selection } from "@nextui-org/react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useTransition } from "react";
+import { FaFemale, FaMale } from "react-icons/fa";
+import useFiltersStore from "./useFilterStore";
 import usePaginationStore from "./usePageinationStore";
 
 export const useFilters = () => {
@@ -19,13 +19,13 @@ export const useFilters = () => {
         totalCount:state.pagination.totalCount,
     }))
 
-    const {gender, ageRange, orderBy} = filters;
+    const {gender, ageRange, orderBy, withPhoto} = filters;
 
     useEffect(() => {
-        if(gender || ageRange || orderBy) {
+        if(gender || ageRange || orderBy || withPhoto) {
             setPage(1);
         }
-    }, [ageRange, gender, orderBy, setPage])
+    }, [ageRange, gender, orderBy, setPage, withPhoto])
 
     useEffect(() => {
         startTransition(() => {
@@ -35,10 +35,11 @@ export const useFilters = () => {
             if(orderBy) searchParams.set('orderBy', orderBy);
             if(pageSize) searchParams.set('pageSize' , pageSize.toString());
             if(pageNumber) searchParams.set('pageNumber' , pageNumber.toString());
+            if(withPhoto) searchParams.set('withPhoto', withPhoto);
 
             router.replace(`${pathname}?${searchParams}`);
         })
-    }, [ageRange, gender, orderBy, pageNumber, pageSize, pathname, router]);
+    }, [ageRange, gender, orderBy, pageNumber, pageSize, pathname, router, withPhoto]);
 
     const orderByList = [
         {label:'Last Active', value: 'updated'},
@@ -52,7 +53,6 @@ export const useFilters = () => {
 
     const handleAgeSelect = (value:number[]) => {
         setFilters('ageRange', value);
-        
     }
     
     const handleOrderSelect = (value:Selection) => {
@@ -66,12 +66,17 @@ export const useFilters = () => {
         else setFilters('gender', [...gender, value]);
     }
 
+    const handleWithPhotoSelect = (value:string) => {
+        setFilters('withPhoto', value);
+    }
+
     return {
         orderByList,
         genderList,
         selectAge:handleAgeSelect,
         selectedGender:handleGenderSelect,
         selectOrder:handleOrderSelect,
+        selectWithPhoto:handleWithPhotoSelect,
         filters,
         isPending
 

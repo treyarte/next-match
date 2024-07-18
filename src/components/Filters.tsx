@@ -1,9 +1,10 @@
 'use client';
 import { useFilters } from '@/hooks/useFilters';
-import { Button, Select, SelectItem, Slider, Spinner } from '@nextui-org/react';
+import { Button, Select, SelectItem, Slider, Spinner, Switch } from '@nextui-org/react';
 
 export default function Filters() {    
-    const {orderByList, genderList, filters, selectAge, selectOrder, selectedGender, isPending} = useFilters();
+    const {orderByList, genderList, filters, selectAge, 
+        selectOrder, selectedGender, selectWithPhoto, isPending} = useFilters();
   return (
     <div className="shadow-md py-2">
         <div className="flex flex-row justify-around items-center">
@@ -36,7 +37,11 @@ export default function Filters() {
                maxValue={100}
                defaultValue={filters.ageRange} 
                onChangeEnd={(value) => selectAge(value as number[])}
+               aria-label='Age Range Slider'
             />
+            </div>
+            <div className="flex flex-row items-center gap-2 ">
+                <Switch onValueChange={(value) => selectWithPhoto(`${value}`)} size="md"> With Photo </Switch>
             </div>
             <div className="w-1/4">
                 <Select 

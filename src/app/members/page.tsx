@@ -1,11 +1,10 @@
-import { getMembers } from '@/actions/memberActions'
-import Link from 'next/link'
-import React from 'react'
-import MemberCard from './MemberCard';
 import { fetchCurrentUserLikeIds } from '@/actions/likeActions';
-import PaginationComponent from '@/components/PaginationComponent';
-import { GetMemberParams, UserFilters } from '@/types';
+import { getMembers } from '@/actions/memberActions';
 import EmptyState from '@/components/EmptyState';
+import PaginationComponent from '@/components/PaginationComponent';
+import { GetMemberParams } from '@/types';
+import Link from 'next/link';
+import MemberCard from './MemberCard';
 
 export default async function MembersPage({searchParams}: {searchParams:GetMemberParams}) {
   const {items:members, totalCount} = await getMembers(searchParams);
