@@ -1,6 +1,7 @@
 'use client';
 
 import LikeButton from "@/components/LikeButton"
+import PresenceDot from "@/components/PresenceDot";
 import { calculateAge, transformImageUrl } from "@/libs/util"
 import { Card, CardFooter, Image } from "@nextui-org/react"
 import { Member } from "@prisma/client"
@@ -12,7 +13,7 @@ type props = {
 }
 
 export default function MemberCard({member, likeIds}:props) {
-const hasLike = likeIds.includes(member.userId);
+  const hasLike = likeIds.includes(member.userId);
 
   const preventLinkAction = (e:React.MouseEvent) => {
     e.preventDefault();
@@ -36,6 +37,9 @@ const hasLike = likeIds.includes(member.userId);
       <div onClick={preventLinkAction}>
         <div className="absolute top-3 right-3 z-50">        
           <LikeButton targetId={member.userId} hasLiked={hasLike} />
+        </div>
+        <div className="absolute top-2 left-3 z-50">
+          <PresenceDot member={member}/>
         </div>
       </div>
       <CardFooter className="flex justify-start bg-dark-gradient overflow-hidden absolute bottom-0 z-10">

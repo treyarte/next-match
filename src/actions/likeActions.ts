@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/libs/prisma";
 import { getAuthUserId } from "./authActions";
+import { pusherServer } from "@/libs/pusher";
 
 export async function toggleLikeMember(targetUserId:string, isLiked:boolean) {
   try {
@@ -17,12 +18,15 @@ export async function toggleLikeMember(targetUserId:string, isLiked:boolean) {
         }}
       });
     } else {
-      await prisma.like.create({
+      const res = await prisma.like.create({
         data: {
           sourceUserId:userId,
           targetUserId
-        }
+        },
+        select: {sourceMember: true}
       })
+      
+      await pusherServer.trigger(`private-${targetUserId}`, 'likes:new', res.sourceMember);
     }
 
   } catch (error) {
@@ -118,4 +122,3 @@ async function fetchMutualLikes(userId:string) {
 
   return mutualLikes.map(ml => ml.sourceMember);
 }
-
