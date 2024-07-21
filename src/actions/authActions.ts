@@ -1,15 +1,29 @@
 'use server';
 
-import { RegisterSchema, registerSchema } from "@/app/schemas/registerSchema";
-import { checkEmailInUse, createUser } from "@/repos/usersRepo";
-import { User } from "@prisma/client";
+import { combinedRegisterSchema, RegisterSchema, registerSchema } from "@/app/schemas/registerSchema";
+import { checkEmailInUse, createUser, getUserByEmail } from "@/repos/usersRepo";
+import { TokenType, User } from "@prisma/client";
 import { ActionResults } from "@/types";
 import { LoginSchema } from "@/app/schemas/loginSchema";
 import { AuthError } from "next-auth";
 import { auth, signIn, signOut } from "@/auth";
+import { generateToken, getTokenByToken } from "@/libs/tokens";
+import { sendVerificationEmail } from "@/libs/mail";
+import { prisma } from "@/libs/prisma";
 
 export async function signInUser(data:LoginSchema) : Promise<ActionResults<string>> {
   try {
+    const existingUser = await getUserByEmail(data.email);
+
+    if(!existingUser || !existingUser.email) return {status: 'error', error: 'Invalid credentials'}
+
+    if(!existingUser.emailVerified) {
+      const token = await generateToken(existingUser.email, TokenType.VERIFICATION)
+
+      await sendVerificationEmail(token.email, token.token);
+      return {status: 'error', error: 'Please verify your email'}
+    }
+
     const result = await signIn('credentials', {
       email: data.email,
       password: data.password,
@@ -39,21 +53,35 @@ export async function signOutUser() {
  */
 export async function registerUser(data:RegisterSchema) : Promise<ActionResults<User>> {
   try {
-    const validated = registerSchema.safeParse(data);
+    const validated = combinedRegisterSchema.safeParse(data);
 
     if(!validated.success) {      
       return {status: 'error', error: validated.error?.errors};
     }
   
-    const user = validated.data;
+    const {name, email, password, gender, description, dateOfBirth, city, country} = validated.data;
   
-    const isEmailInUse = await checkEmailInUse(user.email);
+    const isEmailInUse = await checkEmailInUse(email);
   
     if(isEmailInUse) {
       return {status: 'error', error: "A user with that email already exists"};      
     }
   
-    const newUser = await createUser(user);
+    const newUser = await createUser({
+      name, 
+      email, 
+      password,
+      gender,
+      description,
+      city,
+      country,
+      dateOfBirth
+    });
+
+    const verificationToken = await generateToken(email, TokenType.VERIFICATION);
+
+    // Send email
+    await sendVerificationEmail(verificationToken.email, verificationToken.token);
 
     return {status: 'success', data:newUser}
 
@@ -76,6 +104,41 @@ export async function getAuthUserId() : Promise<string> {
     }
     
     return userId;
+
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function verifyEmail(token:string) : Promise<ActionResults<string>> {
+  try {
+    const existingToken = await getTokenByToken(token);
+
+    if(!existingToken) {
+      return {status: 'error', error: 'Invalid token'}
+    }
+    
+    const hasExpired = new Date() > existingToken.expires;
+    
+    if(hasExpired) {      
+      return {status: 'error', error: 'Token has expired'}
+    }
+    
+    const existingUser = await getUserByEmail(existingToken.email);
+    
+    if(!existingUser) {
+      return {status: 'error', error: 'User not found'}      
+    }
+
+    await prisma.user.update({
+      where:{id:existingUser.id},
+      data:{emailVerified: new Date()}
+    });
+
+    await prisma.token.delete({where: {id: existingToken.id}});
+
+    return {status: 'success', data: 'Success'}
 
   } catch (error) {
     console.error(error);
