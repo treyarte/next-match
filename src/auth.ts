@@ -9,6 +9,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
   callbacks: {
     async jwt({token, user, trigger, session}) {
+      if(user) {
+        token.profileComplete = user.profileComplete
+      }
       if(trigger === "update") { //important to update the nav bar
         return {...token, ...session.user}
       }
@@ -18,8 +21,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async session({token, session, trigger, user}) {
       if(token.sub && session.user) {
         session.user.id = token.sub
+        session.user.profileComplete = token.profileComplete as boolean
       }
       return session;
     }
   }
-})
+}) 

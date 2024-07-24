@@ -8,8 +8,9 @@ import { LoginSchema } from "@/app/schemas/loginSchema";
 import { AuthError } from "next-auth";
 import { auth, signIn, signOut } from "@/auth";
 import { generateToken, getTokenByToken } from "@/libs/tokens";
-import { sendVerificationEmail } from "@/libs/mail";
+import { resetPasswordEmail, sendVerificationEmail } from "@/libs/mail";
 import { prisma } from "@/libs/prisma";
+import { hashPassword } from "@/libs/bcryptHelpers";
 
 export async function signInUser(data:LoginSchema) : Promise<ActionResults<string>> {
   try {
@@ -143,5 +144,64 @@ export async function verifyEmail(token:string) : Promise<ActionResults<string>>
   } catch (error) {
     console.error(error);
     throw error;
+  }
+}
+
+export async function generatePasswordReset(email:string) : Promise<ActionResults<string>> {
+  try {
+    const existingUser = await getUserByEmail(email);
+
+    if(!existingUser) {
+      return {status: 'error', error: "Email not found"};
+    }
+
+    const token = await generateToken(email, TokenType.PASSWORD_RESET);
+
+    await resetPasswordEmail(token.email, token.token);
+
+    return {status: 'success', data: 'Password reset email has been sent. Please check your email.'}
+
+  } catch (error) {
+    console.error(error);
+    return {status: 'error', error: "Something went wrong"};
+  }
+}
+
+export async function resetPassword(password:string, token:string | null) : Promise<ActionResults<string>> {
+  try {
+    
+    if(!token) return {status: 'error', error: 'Missing token'};
+
+    const existingToken = await getTokenByToken(token);
+
+    if(!existingToken) {
+      return {status: 'error', error: 'Invalid token'}
+    }
+    
+    const hasExpired = new Date() > existingToken.expires;
+    
+    if(hasExpired) {      
+      return {status: 'error', error: 'Token has expired'}
+    }
+    
+    const existingUser = await getUserByEmail(existingToken.email);
+    
+    if(!existingUser) {
+      return {status: 'error', error: 'User not found'}      
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    await prisma.user.update({
+      where: {id: existingUser.id},
+      data: {passwordHash: hashedPassword}
+    });
+
+    await prisma.token.delete({where: {id: existingToken.id}});
+
+    return {status: 'success', data: 'Password updated successfully'};
+  } catch (error) {
+    console.error(error);
+    return {status: 'error', error: "Something went wrong"};
   }
 }

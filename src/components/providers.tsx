@@ -10,8 +10,8 @@ import React, { ReactNode, useCallback, useEffect, useRef } from 'react'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function Providers({children, userId} : {children:ReactNode, userId:string|null}) {
-  const isUnreadCountSet = useRef(false);
+export default function Providers({children, userId, profileComplete} : {children:ReactNode, userId:string|null, profileComplete:boolean}) {
+const isUnreadCountSet = useRef(false);
   
   const {updateUnreadCount} = useMessageStore(state => ({
     updateUnreadCount: state.updateUnreadCount

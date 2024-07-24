@@ -1,3 +1,4 @@
+
 import { verifyEmail } from '@/actions/authActions'
 import CardWrapper from '@/components/CardWrapper';
 import ResultMessage from '@/components/ResultMessage';
