@@ -30,8 +30,8 @@ const isUnreadCountSet = useRef(false);
     }
   },[setUnreadCount, userId]);
 
-  usePresenceChannel(userId);
-  useNotificationChannel(userId);
+  usePresenceChannel(userId, profileComplete);
+  useNotificationChannel(userId, profileComplete);
   return (
     
     <NextUIProvider>

@@ -1,6 +1,6 @@
 'use server';
 
-import { combinedRegisterSchema, RegisterSchema, registerSchema } from "@/app/schemas/registerSchema";
+import { combinedRegisterSchema, ProfileSchema, RegisterSchema, registerSchema } from "@/app/schemas/registerSchema";
 import { checkEmailInUse, createUser, getUserByEmail } from "@/repos/usersRepo";
 import { TokenType, User } from "@prisma/client";
 import { ActionResults } from "@/types";
@@ -203,5 +203,44 @@ export async function resetPassword(password:string, token:string | null) : Prom
   } catch (error) {
     console.error(error);
     return {status: 'error', error: "Something went wrong"};
+  }
+}
+
+export async function completeSocialLoginProfile(data:ProfileSchema): Promise<ActionResults<string>> {
+  const session = await auth();
+  if(!session?.user) {
+    return {status: 'error', error: 'user not found'}
+  }
+
+  try {
+    const user = await prisma.user.update({
+      where: {id: session.user.id},
+      data: {
+        profileComplete: true,
+        member: {
+          create: {
+            name: session.user.name as string,
+            image: session.user.image,
+            gender: data.gender,
+            dateOfBirth: new Date(data.dateOfBirth),
+            description: data.description,
+            city: data.city,
+            country: data.country
+          }
+        }
+      },
+      select: {
+        accounts: {
+          select: {
+            provider:true
+          }
+        }
+      }
+    })
+
+    return {status: 'success', data: user.accounts[0].provider};
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
