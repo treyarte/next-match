@@ -34,11 +34,11 @@ const isUnreadCountSet = useRef(false);
   useNotificationChannel(userId, profileComplete);
   return (
     
-    <NextUIProvider>
+    <SessionProvider >
+      <NextUIProvider>
         <ToastContainer position='bottom-right' hideProgressBar className="z-50"/>
-        <SessionProvider >
           {children}
-        </SessionProvider>
-    </NextUIProvider>
+      </NextUIProvider>
+    </SessionProvider>
   )
 }
