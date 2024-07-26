@@ -44,7 +44,7 @@ export async function checkEmailInUse(email:string): Promise<boolean> {
  * @returns 
  */
 export async function createUser(data:RegisterSchema): Promise<User> {
-  const {email, name, password} = data;
+  const {email, name, password, gender, city, country, dateOfBirth, description} = data;
 
   const passwordHash = await hashPassword(password);
 
@@ -52,7 +52,18 @@ export async function createUser(data:RegisterSchema): Promise<User> {
     data: {
       name,
       email,
-      passwordHash 
+      passwordHash,
+      profileComplete: true,
+      member: {
+        create: {
+          name,
+          gender,
+          description,
+          city,
+          country,
+          dateOfBirth: new Date(dateOfBirth)
+        }
+      }
     }
   });
 }

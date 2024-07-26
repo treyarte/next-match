@@ -12,6 +12,7 @@ async function seedMembers() {
       name: member.name,
       passwordHash: await hash('password', 10),
       image: member.image,
+      profileComplete: true,
       member: {
         create: {
           dateOfBirth: new Date(member.dateOfBirth),
@@ -34,8 +35,21 @@ async function seedMembers() {
   }))
 }
 
+async function seedAdmin() {
+  return prisma.user.create({
+    data: {
+      email: 'admin@test.com',
+      emailVerified: new Date(),
+      name: 'Admin',
+      passwordHash: await hash('password', 10),
+      role: 'ADMIN'
+    }
+  }) 
+}
+
 async function main() {
   await seedMembers();
+  await seedAdmin();
 }
 
 main().catch(e => {

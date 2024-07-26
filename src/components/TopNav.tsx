@@ -8,6 +8,18 @@ import UserMenu from './UserMenu'
 
 export default async function TopNav() {
     const session = await auth();
+
+    const memberLinks = [
+        {href: '/members', label: 'Matches'},
+        {href: '/lists', label: 'Lists'},
+        {href: '/messages', label: 'Messages'},
+    ]
+
+    const adminLinks = [
+        {href: '/admin/moderation', label: 'Photo Moderation'},
+    ]
+
+    const links = session?.user.role === "ADMIN" ? adminLinks : memberLinks;
   return (
     <>
         <Navbar 
@@ -33,9 +45,9 @@ export default async function TopNav() {
                 </div>
             </NavbarBrand>
             <NavbarContent justify='center'>
-                <NavLink href='/members'>Matches</NavLink>
-                <NavLink href='/lists'>Lists</NavLink>
-                <NavLink href='/messages'>Messages</NavLink>
+                {links.map(link => (
+                    <NavLink key={link.href} href={link.href}>{link.label}</NavLink>
+                ))}                                                
             </NavbarContent>
             <NavbarContent justify='end'>
                 {session?.user ? 
