@@ -49,8 +49,10 @@ async function seedAdmin() {
 }
 
 async function main() {
-  await seedMembers();
-  await seedAdmin();
+  if(process.env.RUN_SEED === 'ture' || process.env.NODE_ENV === "development") {
+    await seedMembers();
+    await seedAdmin();
+  }
 }
 
 main().catch(e => {
