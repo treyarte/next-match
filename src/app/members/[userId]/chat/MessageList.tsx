@@ -55,7 +55,7 @@ export default function MessageList({initialMessages, userId, chatId}:Props) {
             }
         }
     }, [chatId, handleMessages, handleReadMessages]);
-
+    //
     return (
         <div>
             {messages.length <= 0 ? 'No messages to display': (
