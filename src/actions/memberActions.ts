@@ -82,10 +82,13 @@ export async function getMemberByUserId(userId:string) {
 }
 
 export async function getMemberPhotosByUserId(userId:string){
+  const currentUserId = await getAuthUserId();
   try {
     const member = await prisma.member.findUnique({
       where: {userId},
-      select: {photos:true}
+      select: {photos:{
+        where: currentUserId === userId ? {} : {isApproved: true}
+      }}
     });
 
     if(!member) {
