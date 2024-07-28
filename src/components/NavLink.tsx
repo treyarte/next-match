@@ -30,7 +30,7 @@ export default function NavLink({href, children}:props) {
       isActive={checkIsActive()} 
     >
       <span>{children}</span>
-      {href === '/messages' && (
+      {href === '/messages' && unreadCount > 0 && (
         <span className='ml-1 '>({unreadCount})</span>
       )}
     </NavbarItem>
