@@ -26,7 +26,8 @@ async function seedMembers() {
           image: member.image,
           photos: {
             create: {
-              url: member.image
+              url: member.image,
+              isApproved: true
             }
           }
         }

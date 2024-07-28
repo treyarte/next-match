@@ -8,6 +8,7 @@ import { useState } from 'react';
 import DeleteButton from './DeleteButton';
 import MemberImage from './MemberImage';
 import StarButton from './StarButton';
+import { toast } from 'react-toastify';
 
 
 type Props = {
@@ -30,17 +31,25 @@ export default function MemberPhotos({photos, editing, mainImageUrl}:Props) {
   const onSetMain = async (photo:Photo) => {
     if(photo.url === mainImageUrl) {return;}
     setLoading({isLoading:true, id:photo.id, type: 'main'});
-    await setMainPhoto(photo);
-    await update({
-      ...session, 
-      user: {
-        ...session?.user,
-        picture:photo.url //even though photo is not the name of image on our model but next auth uses a photo
-      }  
-    });
-    
-    router.refresh();
-    setLoading(defaultLoading)    
+    try {
+      await setMainPhoto(photo);
+      await update({
+        ...session, 
+        user: {
+          ...session?.user,
+          picture:photo.url //even though photo is not the name of image on our model but next auth uses a photo
+        }  
+      });
+      
+      router.refresh();
+      
+    } catch (error:any) {
+        toast.error(error.message)
+        console.error(error);
+    } finally {
+      setLoading(defaultLoading);
+    }
+ 
   }
 
   const onDelete = async (photo:Photo) => {
